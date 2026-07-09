@@ -48,7 +48,7 @@ export default function Home() {
           Galeria de Tubarões
         </h1>
         <p className="text-slate-400 text-sm">
-          Teste de Integração (Exibindo 5 de {tubaroes.length} espécies cadastradas)
+          Teste de Integração (Exibindo {tubaroes.length} de {tubaroes.length} espécies cadastradas)
         </p>
       </header>
 
