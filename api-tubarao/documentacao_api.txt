@@ -1,0 +1,126 @@
+================================================================================
+DOCUMENTAÇÃO DE INTEGRAÇÃO - API DE TUBARÕES
+================================================================================
+
+Este documento descreve os detalhes técnicos necessários para que desenvolvedores
+terceiros possam consumir a API de Tubarões em suas próprias aplicações.
+
+--------------------------------------------------------------------------------
+1. INFORMAÇÕES GERAIS
+--------------------------------------------------------------------------------
+- Descrição: API pública para consulta de dados sobre espécies de tubarões.
+- Protocolo: HTTPS/HTTP
+- Formato de Dados: JSON (Application/JSON)
+- Autenticação: Nenhuma chave ou token é necessário para o consumo público.
+- CORS: Habilitado (Permite chamadas HTTP diretas a partir de qualquer domínio).
+
+URL Base:
+- Desenvolvimento local: http://localhost:3000
+- Produção (Vercel):     https://api-tubarao-2026.vercel.app
+
+--------------------------------------------------------------------------------
+2. ENDPOINT DISPONÍVEL
+--------------------------------------------------------------------------------
+
+MÉTODO: GET
+CAMINHO: /api/tubaroes
+DESCRIÇÃO: Retorna a listagem completa das espécies de tubarões catalogadas.
+
+Cabeçalhos da Resposta (Response Headers):
+- Content-Type: application/json
+- Access-Control-Allow-Origin: *
+
+--------------------------------------------------------------------------------
+3. ESTRUTURA DOS DADOS RETORNADOS (JSON)
+--------------------------------------------------------------------------------
+
+A resposta bem-sucedida (Status 200 OK) retornará uma lista de objetos JSON.
+Cada objeto representa uma espécie de tubarão e contém os seguintes atributos:
+
+* id (inteiro)
+  Identificador exclusivo da espécie no sistema.
+  Exemplo: 12
+
+* nome_popular (texto)
+  Nome comum da espécie em português.
+  Exemplo: "Tubarão-Martelo"
+
+* nome_cientifico (texto)
+  Classificação científica formal da espécie (Gênero e Espécie).
+  Exemplo: "Sphyrna mokarran"
+
+* tamanho_maximo_metros (decimal)
+  Comprimento máximo registrado para a espécie, expresso em metros.
+  Exemplo: 6.1
+
+* habitat (texto)
+  Breve descrição do ambiente marinho onde a espécie costuma ser avistada.
+  Exemplo: "Águas tropicais costeiras e semi-oceânicas"
+
+* risco_extincao (texto)
+  Status de conservação da espécie segundo a lista vermelha da IUCN.
+  Valores comuns: "Pouco Preocupante", "Quase Ameaçado", "Vulnerável",
+  "Em Perigo", "Criticamente em Perigo", "Dados Insuficientes".
+  Exemplo: "Criticamente em Perigo"
+
+* url_foto (texto - opcional)
+  URL de uma imagem pública ilustrando o tubarão correspondente.
+  Exemplo: "https://imagens.exemplo.org/tubarao_martelo.jpg"
+
+--------------------------------------------------------------------------------
+4. EXEMPLOS DE CÓDIGO PARA INTEGRAÇÃO
+--------------------------------------------------------------------------------
+
+Abaixo estão exemplos práticos de como consumir o endpoint em diferentes linguagens:
+
+---
+A) REQUISIÇÃO VIA cURL (Linha de Comando)
+---
+curl -X GET "https://api-tubarao-2026.vercel.app/api/tubaroes" \
+     -H "Accept: application/json"
+
+---
+B) REQUISIÇÃO VIA JAVASCRIPT (Navegador / NodeJS)
+---
+const URL_API = 'https://api-tubarao-2026.vercel.app/api/tubaroes';
+
+fetch(URL_API)
+  .then(response => {
+    if (!response.ok) {
+      throw new Error(`Erro HTTP! status: ${response.status}`);
+    }
+    return response.json();
+  })
+  .then(data => {
+    console.log('Espécies encontradas:', data.length);
+    console.log(data);
+  })
+  .catch(error => {
+    console.error('Erro ao consumir a API:', error);
+  });
+
+---
+C) REQUISIÇÃO VIA PYTHON (Requests)
+---
+import requests
+
+url = "https://api-tubarao-2026.vercel.app/api/tubaroes"
+
+try:
+    response = requests.get(url)
+    response.raise_for_status() # Lança exceção se houver erro HTTP
+    tubaroes = response.json()
+    print(f"Total de tubarões catalogados: {len(tubaroes)}")
+    for t in tubaroes:
+        print(f"- {t['nome_popular']} ({t['nome_cientifico']})")
+except requests.exceptions.RequestException as e:
+    print(f"Ocorreu um erro: {e}")
+
+--------------------------------------------------------------------------------
+5. CÓDIGOS DE RETORNO HTTP (STATUS CODES)
+--------------------------------------------------------------------------------
+
+- 200 OK: Requisição bem-sucedida. O corpo da resposta contém os dados em JSON.
+- 500 Internal Server Error: Erro no servidor da API ou falha na comunicação
+  com o banco de dados.
+================================================================================
