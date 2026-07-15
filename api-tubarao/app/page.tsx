@@ -62,12 +62,6 @@ export default function Home() {
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-600/10 rounded-full blur-3xl" />
         </div>
 
-        {/* Badge */}
-        <span className="relative inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold uppercase tracking-widest px-4 py-1.5 rounded-full mb-8">
-          <span className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse" />
-          API Pública · Sem Autenticação
-        </span>
-
         <h1 className="relative text-5xl sm:text-7xl font-extralight tracking-tight text-white mb-5 leading-tight">
           API de{" "}
           <span className="font-light bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
