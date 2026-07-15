@@ -26,6 +26,7 @@ const PESOS_EXTINCAO: Record<string, number> = {
 
 export default function Home() {
   const [tubaroes, setTubaroes] = useState<Tubarao[]>([]);
+  const [busca, setBusca] = useState("");
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
   const [criterioOrdenacao, setCriterioOrdenacao] = useState<string>("nome-asc");
@@ -50,7 +51,17 @@ export default function Home() {
     carregarTubaroes();
   }, []);
 
-  const tubaroesOrdenados = [...tubaroes].sort((a, b) => {
+  const tubaroesFiltrados = tubaroes.filter((tubarao) => {
+    const termo = busca.toLowerCase().trim();
+    if (!termo) return true;
+    return (
+      tubarao.nome_popular.toLowerCase().includes(termo) ||
+      tubarao.nome_cientifico.toLowerCase().includes(termo) ||
+      tubarao.habitat.toLowerCase().includes(termo)
+    );
+  });
+
+  const tubaroesOrdenados = [...tubaroesFiltrados].sort((a, b) => {
     switch (criterioOrdenacao) {
       case "nome-asc":
         return a.nome_popular.localeCompare(b.nome_popular);
@@ -82,29 +93,69 @@ export default function Home() {
         </p>
       </header>
 
-      {/* Filtros */}
+      {/* Filtros e Busca */}
       {!carregando && !erro && (
-        <div className="mb-8 w-full max-w-6xl flex flex-col sm:flex-row gap-4 justify-between items-center bg-slate-900/20 border border-white/5 p-4 rounded-2xl backdrop-blur-sm">
-          <div className="text-sm text-slate-400">
-            Exibindo {tubaroesOrdenados.length} espécies cadastradas
+        <div className="mb-8 w-full max-w-6xl flex flex-col gap-4">
+          {/* Campo de Busca */}
+          <div className="relative w-full">
+            <input
+              type="text"
+              placeholder="Pesquise por nome popular, científico ou habitat..."
+              value={busca}
+              onChange={(e) => setBusca(e.target.value)}
+              className="w-full bg-slate-900/40 border border-white/5 focus:border-blue-500/30 rounded-2xl py-3.5 pl-12 pr-12 text-slate-200 placeholder-slate-500 outline-none transition-all duration-300 backdrop-blur-sm text-base focus:ring-1 focus:ring-blue-500/20"
+            />
+            {/* Ícone de Busca (Lupa) */}
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </span>
+            {/* Botão de Limpar Pesquisa */}
+            {busca && (
+              <button
+                onClick={() => setBusca("")}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 transition-colors cursor-pointer"
+                title="Limpar pesquisa"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            )}
           </div>
-          <div className="flex items-center gap-2.5">
-            <label htmlFor="ordenar" className="text-xs text-slate-400 uppercase tracking-wider font-semibold">
-              Ordenar por:
-            </label>
-            <select
-              id="ordenar"
-              value={criterioOrdenacao}
-              onChange={(e) => setCriterioOrdenacao(e.target.value)}
-              className="bg-slate-950 border border-white/10 text-slate-200 text-sm rounded-xl px-4 py-2 outline-none focus:border-blue-500/50 transition-colors cursor-pointer min-w-[220px]"
-            >
-              <option value="nome-asc" className="bg-slate-950">Ordem Alfabética (A-Z)</option>
-              <option value="nome-desc" className="bg-slate-950">Ordem Alfabética (Z-A)</option>
-              <option value="tamanho-desc" className="bg-slate-950">Maior Tamanho</option>
-              <option value="tamanho-asc" className="bg-slate-950">Menor Tamanho</option>
-              <option value="extincao-desc" className="bg-slate-950">Mais Ameaçados (Extinção)</option>
-              <option value="extincao-asc" className="bg-slate-950">Menos Ameaçados (Extinção)</option>
-            </select>
+
+          {/* Info de contagem e Ordenação */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-between items-center bg-slate-900/20 border border-white/5 p-4 rounded-2xl backdrop-blur-sm">
+            <div className="text-sm text-slate-400">
+              {busca.trim() ? (
+                <>
+                  Encontradas <span className="text-blue-400 font-medium">{tubaroesOrdenados.length}</span> {tubaroesOrdenados.length === 1 ? "espécie" : "espécies"} para "{busca}"
+                </>
+              ) : (
+                <>
+                  Exibindo <span className="text-slate-200 font-medium">{tubaroesOrdenados.length}</span> espécies cadastradas
+                </>
+              )}
+            </div>
+            <div className="flex items-center gap-2.5">
+              <label htmlFor="ordenar" className="text-xs text-slate-400 uppercase tracking-wider font-semibold">
+                Ordenar por:
+              </label>
+              <select
+                id="ordenar"
+                value={criterioOrdenacao}
+                onChange={(e) => setCriterioOrdenacao(e.target.value)}
+                className="bg-slate-950 border border-white/10 text-slate-200 text-sm rounded-xl px-4 py-2 outline-none focus:border-blue-500/50 transition-colors cursor-pointer min-w-[220px]"
+              >
+                <option value="nome-asc" className="bg-slate-950">Ordem Alfabética (A-Z)</option>
+                <option value="nome-desc" className="bg-slate-950">Ordem Alfabética (Z-A)</option>
+                <option value="tamanho-desc" className="bg-slate-950">Maior Tamanho</option>
+                <option value="tamanho-asc" className="bg-slate-950">Menor Tamanho</option>
+                <option value="extincao-desc" className="bg-slate-950">Mais Ameaçados (Extinção)</option>
+                <option value="extincao-asc" className="bg-slate-950">Menos Ameaçados (Extinção)</option>
+              </select>
+            </div>
           </div>
         </div>
       )}
@@ -125,7 +176,7 @@ export default function Home() {
       )}
 
       {/* Grid de Cards */}
-      {!carregando && !erro && (
+      {!carregando && !erro && tubaroesOrdenados.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-6xl">
           {tubaroesOrdenados.map((tubarao) => (
             <div
@@ -175,6 +226,27 @@ export default function Home() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Estado Vazio (Sem resultados na busca) */}
+      {!carregando && !erro && tubaroesOrdenados.length === 0 && (
+        <div className="flex flex-col items-center justify-center py-16 px-4 text-center max-w-md mx-auto">
+          <div className="w-16 h-16 bg-slate-900/60 border border-white/5 rounded-2xl flex items-center justify-center text-slate-500 mb-4">
+            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+          <h3 className="text-lg font-medium text-slate-200 mb-1">Nenhum tubarão encontrado</h3>
+          <p className="text-sm text-slate-400 mb-6">
+            Não encontramos resultados para "{busca}". Experimente usar termos mais genéricos.
+          </p>
+          <button
+            onClick={() => setBusca("")}
+            className="bg-blue-600/10 hover:bg-blue-600/20 border border-blue-500/20 text-blue-400 hover:text-blue-300 font-medium text-sm px-5 py-2.5 rounded-xl transition-all duration-300 cursor-pointer"
+          >
+            Limpar Pesquisa
+          </button>
         </div>
       )}
     </main>
